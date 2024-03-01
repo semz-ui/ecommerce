@@ -63,7 +63,8 @@ export const getItems = asyncHandler(async (req, res) => {
   }
 });
 export const getFilteredItemsItems = asyncHandler(async (req, res) => {
-  const { category } = await req.body;
+  const category = req.params.category;
+  console.log(category);
   if (!category) {
     res.status(400).json({
       message: "Please add data",

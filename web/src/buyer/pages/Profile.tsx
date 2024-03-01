@@ -1,13 +1,15 @@
 import { cn } from "@/components/lib/utils";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import MaxWidthWrapper from "@/components/ui/MaxWidthWrapper";
 import { Button } from "@/components/ui/button";
 import { profileData } from "@/utils/profileData";
 import { logout, reset } from "@/feature/auth/authSlice";
-import { AppDispatch } from "@/app/store";
+import { AppDispatch, RootState } from "@/app/store";
 
 function Profile() {
+  const { user } = useSelector((state: RootState) => state.auth);
+  console.log(user, "locker");
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const onLogOut = () => {
@@ -35,6 +37,11 @@ function Profile() {
           </Link>
         ))}
       </div>
+      {user.verified == false && (
+        <h1 className="text-sm font-medium text-center text-red-600 mt-10">
+          Verify your account
+        </h1>
+      )}
       <div className={cn("flex justify-center")}>
         <Button className={cn("w-2/3 mt-20")} onClick={onLogOut}>
           Logout

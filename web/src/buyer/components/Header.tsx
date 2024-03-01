@@ -1,8 +1,8 @@
-import React from "react";
+import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 
 import {
   Form,
@@ -21,11 +21,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "../../components/ui/button";
-import { Sun, Moon, MapPin, Search, ShoppingCart } from "lucide-react";
+import { Sun, Moon, MapPin, Search } from "lucide-react";
 import { useTheme } from "../../components/ThemeProvider";
 import { RootState } from "@/app/store";
 import { Input } from "../../components/ui/input";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Cart from "./Cart";
 import MobileHeader from "./MobileHeader";
 
@@ -35,6 +35,7 @@ const formSchema = z.object({
   }),
 });
 function Header() {
+  const navigate = useNavigate();
   const { user } = useSelector((state: RootState) => state.auth);
   console.log(user, "locker");
   const form = useForm<z.infer<typeof formSchema>>({
@@ -50,13 +51,16 @@ function Header() {
   }
   const theme = localStorage.getItem("vite-ui-theme");
   const { setTheme } = useTheme();
+  useEffect(() => {
+    if (user?.verified == false) {
+      navigate("/verify-email");
+    }
+  }, [user]);
+
   return (
-    <div className="w-full max-sm:justify-between flex items-center py-2 gap-4 bg-teal-800 sticky top-0 z-50">
+    <div className="w-full max-sm:justify-between px-2 flex items-center py-2 gap-4 bg-teal-800 sticky top-0 z-50">
       <Link to="/">
-        <img
-          src="https://www.svgrepo.com/show/22029/amazon.svg"
-          className="w-10 h-10"
-        />
+        <h1 className="font-bold text-2xl">M</h1>
       </Link>
       <div className="max-sm:hidden flex items-center mx-3 gap-x-1">
         <MapPin size={20} color="white" />
@@ -110,7 +114,7 @@ function Header() {
       <div className="max-sm:hidden flex justify-between w-1/6 items-center">
         {user ? (
           <Link to="/profile" className="text-white">
-            <p className="text-xs">Hello, {user?.name}</p>
+            <p className="text-xs">Hello, {user?.firstName}</p>
             <p className="text-sm font-semibold">Account & Lists</p>
           </Link>
         ) : (

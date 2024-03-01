@@ -9,7 +9,7 @@ function Profile() {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const onLogOut = () => {
-    navigate("/login");
+    navigate("/");
     dispatch(logout());
 
     return () => reset();

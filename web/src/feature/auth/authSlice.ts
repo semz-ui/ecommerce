@@ -45,6 +45,58 @@ export const login = createAsyncThunk(
     }
 )
 
+export const sendMail = createAsyncThunk(
+    "auth/send-token",
+    async (_, thunkAPI: any) => {
+        try {
+            const token = thunkAPI.getState().auth.user.token;
+            return await authService.sendMail(_, token)
+        } catch (error: any) {
+            const message = (error.response &&
+                error.response.data &&
+                error.response.data.message) ||
+                error.message ||
+                error.toString();
+            return thunkAPI.rejectWithValue(message);
+        }
+    }
+)
+export const verifyUser = createAsyncThunk(
+    "auth/verify-user",
+    async (token: any, thunkAPI: any) => {
+        try {
+            const tok = thunkAPI.getState().auth.user.token;
+            console.log(tok, "tok")
+            return await authService.verifyUser(tok, token)
+        } catch (error: any) {
+            const message = (error.response &&
+                error.response.data &&
+                error.response.data.message) ||
+                error.message ||
+                error.toString();
+            return thunkAPI.rejectWithValue(message);
+        }
+    }
+)
+
+export const editProfile = createAsyncThunk(
+    "auth/edit-profile",
+    async (userData: any, thunkAPI: any) => {
+        try {
+            const token = thunkAPI.getState().auth.user.token;
+            return await authService.editProfile(userData, token)
+        } catch (error: any) {
+            const message = (error.response &&
+                error.response.data &&
+                error.response.data.message) ||
+                error.message ||
+                error.toString();
+            return thunkAPI.rejectWithValue(message);
+        }
+    }
+
+)
+
 export const logout = createAsyncThunk(
     "auth/logout",
     async () => {
@@ -87,7 +139,36 @@ export const authSlice = createSlice({
                 state.isSuccess = true;
                 state.user = action.payload;
             })
-            .addCase(login.rejected, (state, action) => {
+            .addCase(login.rejected, (state, action: any) => {
+                state.isLoading = false;
+                state.isError = true;
+                state.message = JSON.stringify(action.payload);
+                state.user = null;
+            })
+            .addCase(sendMail.pending, (state) => {
+                state.isLoading = true;
+            })
+            .addCase(sendMail.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.isSuccess = true;
+                state.message = action.payload;
+            })
+            .addCase(sendMail.rejected, (state, action) => {
+                state.isLoading = false;
+                state.isError = true;
+                state.message = JSON.stringify(action.payload);
+                state.user = null;
+            })
+            .addCase(verifyUser.pending, (state) => {
+                state.isLoading = true;
+            })
+            .addCase(verifyUser.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.isSuccess = true;
+                state.message = action.payload;
+                console.log(action, "action.payload")
+            })
+            .addCase(verifyUser.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isError = true;
                 state.message = JSON.stringify(action.payload);
@@ -95,7 +176,21 @@ export const authSlice = createSlice({
             })
             .addCase(logout.fulfilled, (state) => {
                 state.user = null;
-            });
+            })
+            .addCase(editProfile.pending, (state) => {
+                state.isLoading = true;
+            })
+            .addCase(editProfile.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.isSuccess = true;
+                state.user = action.payload;
+            })
+            .addCase(editProfile.rejected, (state, action) => {
+                state.isLoading = false;
+                state.isError = true;
+                state.message = JSON.stringify(action.payload);
+                state.user = null;
+            })
     },
 })
 

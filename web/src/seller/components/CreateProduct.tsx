@@ -21,28 +21,28 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useState } from "react";
-import axios from "axios";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/app/store";
+import { createProduct } from "@/feature/seller/products/productsSlice";
 
 function CreateProduct() {
-  const [imageUrl, setImageUrl] = useState("");
+  const dispatch = useDispatch<AppDispatch>();
   const formSchema = z.object({
     itemTitle: z.string().min(2, {
-      message: "Username must be at least 2 characters.",
+      message: "title must be at least 2 characters.",
     }),
     itemDescription: z.string().min(2, {
-      message: "Username must be at least 2 characters.",
+      message: "description must be at least 2 characters.",
     }),
     itemImage: z.custom<File>((v) => v instanceof File, {
       message: "Image is required",
     }),
     itemPrice: z.string(),
-    itemRating: z.number(),
     category: z.string().min(2, {
-      message: "Username must be at least 2 characters.",
+      message: "category must be at least 2 characters.",
     }),
     subCategory: z.string().min(2, {
-      message: "Username must be at least 2 characters.",
+      message: "sub category must be at least 2 characters.",
     }),
   });
   const form = useForm<z.infer<typeof formSchema>>({
@@ -52,28 +52,22 @@ function CreateProduct() {
       itemDescription: "",
       itemImage: new File([""], "filename"),
       itemPrice: "",
-      itemRating: 0,
       category: "",
       subCategory: "",
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const formData = new FormData();
-    formData.append("file", values.itemImage);
-    formData.append("upload_preset", "your_cloudinary_upload_preset");
+    const formData: FormData = new FormData();
+    formData.append("image", values.itemImage);
+    formData.append("itemTitle", values.itemTitle);
+    formData.append("itemDescription", values.itemDescription);
+    formData.append("itemPrice", values.itemPrice);
+    formData.append("category", values.category);
+    formData.append("subCategory", values.subCategory);
+    dispatch(createProduct(formData));
 
-    try {
-      const response = await axios.post(
-        "https://api.cloudinary.com/dmtxr0p4b/image/upload",
-        formData
-      );
-      setImageUrl(response.data.secure_url);
-      console.log(response.data);
-    } catch (error) {
-      console.error("Error uploading image to Cloudinary:", error);
-    }
-    console.log(values, "lk");
+    console.log(values, "lk", formData);
   }
 
   return (
@@ -97,9 +91,9 @@ function CreateProduct() {
                   name="itemTitle"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Username</FormLabel>
+                      <FormLabel>Item Title</FormLabel>
                       <FormControl>
-                        <Input placeholder="shadcn" {...field} />
+                        <Input placeholder="item title" {...field} />
                       </FormControl>
                       <FormDescription />
                       <FormMessage />
@@ -111,9 +105,9 @@ function CreateProduct() {
                   name="itemDescription"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Username</FormLabel>
+                      <FormLabel>Item Description</FormLabel>
                       <FormControl>
-                        <Input placeholder="shadcn" {...field} />
+                        <Input placeholder="item description" {...field} />
                       </FormControl>
                       <FormDescription />
                       <FormMessage />
@@ -125,10 +119,10 @@ function CreateProduct() {
                   name="itemImage"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Username</FormLabel>
+                      <FormLabel>Image</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="shadcn"
+                          placeholder="item image"
                           {...field}
                           value={undefined}
                           onChange={(event) => {
@@ -153,9 +147,9 @@ function CreateProduct() {
                   name="itemPrice"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Username</FormLabel>
+                      <FormLabel>Item price</FormLabel>
                       <FormControl>
-                        <Input placeholder="shadcn" {...field} type="number" />
+                        <Input placeholder="price" {...field} type="number" />
                       </FormControl>
                       <FormDescription />
                       <FormMessage />
@@ -167,9 +161,9 @@ function CreateProduct() {
                   name="category"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Username</FormLabel>
+                      <FormLabel>category</FormLabel>
                       <FormControl>
-                        <Input placeholder="shadcn" {...field} />
+                        <Input placeholder="category" {...field} />
                       </FormControl>
                       <FormDescription />
                       <FormMessage />
@@ -181,9 +175,9 @@ function CreateProduct() {
                   name="subCategory"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Username</FormLabel>
+                      <FormLabel>Sub category</FormLabel>
                       <FormControl>
-                        <Input placeholder="shadcn" {...field} />
+                        <Input placeholder="sub category" {...field} />
                       </FormControl>
                       <FormDescription />
                       <FormMessage />

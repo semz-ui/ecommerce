@@ -1,10 +1,9 @@
 import { ThemeProvider } from "./components/ThemeProvider";
-import BuyerRouter from "./BuyerRouter";
-import Router from "./Router";
+import Router from "./routes/Router";
 
 function App() {
   return (
-    <ThemeProvider defaultTheme="light">
+    <ThemeProvider defaultTheme="system">
       <Router />
     </ThemeProvider>
   );

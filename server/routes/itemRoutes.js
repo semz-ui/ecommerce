@@ -15,7 +15,7 @@ const router = express.Router();
 
 // router.post("/create-item", protect, createItem);
 router.get("/get-items", getItems);
-router.get("/get-filtered-items", getFilteredItemsItems);
+router.get("/get-filtered-items/:category", getFilteredItemsItems);
 router.get("/get-searched-items", getSearchedItems);
 router.get("/get-sellers-items", protect, getSellersItems);
 router.post(

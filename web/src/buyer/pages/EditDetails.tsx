@@ -3,9 +3,11 @@ import EditProfile from "@/buyer/components/EditProfile";
 import MaxWidthWrapper from "@/components/ui/MaxWidthWrapper";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import React from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/app/store";
 
 function EditDetails() {
+  const { user } = useSelector((state: RootState) => state.auth);
   return (
     <MaxWidthWrapper className={cn("max-w-screen-sm")}>
       <div className={cn("text-4xl font-medium text-center mb-10")}>
@@ -18,7 +20,12 @@ function EditDetails() {
             <p>Olotu Michael</p>
           </div>
           <div className="mr-5">
-            <EditProfile />
+            <EditProfile
+              firstNm={user?.firstName}
+              lastNm={user?.lastName}
+              eml={user?.email}
+              role={"name"}
+            />
           </div>
         </div>
         <Separator />
@@ -31,9 +38,12 @@ function EditDetails() {
             </p>
           </div>
           <div className="mr-5">
-            <Button variant="outline" className="px-10">
-              Edit
-            </Button>
+            <EditProfile
+              firstName={user?.firstName}
+              lastName={user?.lastName}
+              email={user?.email}
+              role={"email"}
+            />
           </div>
         </div>
         <Separator />

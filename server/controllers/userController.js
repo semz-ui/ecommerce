@@ -37,9 +37,46 @@ export const register = asyncHandler(async (req, res) => {
     firstName: user.firstName,
     lastName: user.lastName,
     role: user.role,
+    verified: user.verified,
     token: generateToken(user._id),
   });
-  const tok = await Token.findOne({ email });
+});
+
+export const login = asyncHandler(async (req, res) => {
+  const { email, password } = await req.body;
+  if (!email || !password) {
+    res.status(400).json({
+      message: "Please fill up all details",
+    });
+  }
+  const user = await User.findOne({ email });
+  console.log(user, "log user");
+  if (!user) {
+    res.status(404).json({
+      message: "User doesn't exists",
+    });
+  } else if (user && (await bcrypt.compare(password, user.password))) {
+    res.status(201).json({
+      _id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role,
+      verified: user.verified,
+      token: generateToken(user._id),
+    });
+  } else {
+    res.status(400).json({
+      message: "Please confirm all data",
+    });
+  }
+});
+
+export const sendOtp = asyncHandler(async (req, res) => {
+  const user = await req.user;
+  const email = await user.email;
+  console.log(email, "user");
+  const tok = await Token.findOne({ email: email });
   const randomNumber = crypto.randomInt(100000, 999999);
   const token1 = randomNumber.toString();
   let transporter = nodemailer.createTransport({
@@ -95,37 +132,10 @@ export const register = asyncHandler(async (req, res) => {
   }
 });
 
-export const login = asyncHandler(async (req, res) => {
-  const { email, password } = await req.body;
-  if (!email || !password) {
-    res.status(400).json({
-      message: "Please fill up all details",
-    });
-  }
-  const user = await User.findOne({ email });
-  console.log(user, "log user");
-  if (!user) {
-    res.status(404).json({
-      message: "User doesn't exists",
-    });
-  } else if (user && (await bcrypt.compare(password, user.password))) {
-    res.status(201).json({
-      _id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      role: user.role,
-      token: generateToken(user._id),
-    });
-  } else {
-    res.status(400).json({
-      message: "Please confirm all data",
-    });
-  }
-});
-
 export const verifyUser = asyncHandler(async (req, res) => {
-  const { email, token } = req.body;
+  const { token } = await req.body;
+  const userExist = await req.user;
+  const email = userExist.email;
   if (!email || !token) {
     res.status(400).json({
       message: "Please fill up all data",
@@ -153,6 +163,36 @@ export const verifyUser = asyncHandler(async (req, res) => {
   } else {
     res.status(400).json({
       message: "Please check the code again or request for a new code",
+    });
+  }
+});
+
+export const updateUser = asyncHandler(async (req, res) => {
+  const user = await req.user;
+  const { firstName, lastName, email } = await req.body;
+  if (!firstName || !lastName || !email) {
+    res.status(400).json({
+      message: "Please fill up all data",
+    });
+  }
+  const updateUser = await User.findOneAndUpdate(
+    { email: user.email },
+    { firstName, lastName, email },
+    { new: true }
+  );
+  if (updateUser) {
+    res.status(200).json({
+      _id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role,
+      verified: user.verified,
+      token: generateToken(user._id),
+    });
+  } else {
+    res.status(400).json({
+      message: "An error occured",
     });
   }
 });
